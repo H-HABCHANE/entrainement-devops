@@ -35,3 +35,9 @@ def test_metrics_compte_les_requetes():
     # le label route garde le modèle, pas l'identifiant réel
     assert 'route="/plats/{plat_id}"' in texte
     assert 'route="/plats/2"' not in texte
+
+
+def test_plat_le_moins_cher():
+    reponse = client.get("/plats/moins-cher")
+    assert reponse.status_code == 200
+    assert reponse.json()["nom"] == "Harira"

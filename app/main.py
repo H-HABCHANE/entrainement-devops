@@ -51,6 +51,11 @@ def lister_plats():
     return list(PLATS.values())
 
 
+@app.get("/plats/moins-cher")
+def plat_le_moins_cher():
+    return min(PLATS.values(), key=lambda p: p["prix"])
+
+
 @app.get("/plats/{plat_id}")
 def lire_plat(plat_id: int):
     if plat_id not in PLATS:
