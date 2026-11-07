@@ -27,8 +27,37 @@ jobs:
 
       - name: Tests
         run: pytest
-  publier:
+
+  image:
     needs: qualite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Construire l'image
+        run: docker build -t carte-api:test .
+
+      - name: Démarrer le conteneur
+        run: docker run -d --name api -p 8000:8000 carte-api:test
+
+      - name: Attendre l'état healthy
+        run: |
+          for i in $(seq 1 20); do
+            etat=$(docker inspect --format '{{.State.Health.Status}}' api)
+            echo "essai $i : $etat"
+            [ "$etat" = "healthy" ] && exit 0
+            sleep 3
+          done
+          docker logs api
+          exit 1
+
+      - name: Tester l'API et l'utilisateur
+        run: |
+          curl -fsS http://localhost:8000/health
+          test "$(docker exec api id -u)" != "0"
+
+  publier:
+    needs: image
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
