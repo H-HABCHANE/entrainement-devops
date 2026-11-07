@@ -45,6 +45,7 @@ jobs:
           for i in $(seq 1 20); do
             etat=$(docker inspect --format '{{.State.Health.Status}}' api)
             echo "essai $i : $etat"
+            [ "$etat" = "unhealthy" ] && break
             [ "$etat" = "healthy" ] && exit 0
             sleep 3
           done
